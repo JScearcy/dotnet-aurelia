@@ -1,0 +1,14 @@
+<template>
+    <div class="followers-component">
+        <p>Followers</p>
+        <ul class="followers-list">
+            <template repeat.for="follower of followers">
+                <li class="follower">
+                    <a href="${follower.html_url}" target="_blank">
+                        <img src="${follower.avatar_url}" />
+                    </a>
+                </li>
+            </template>
+        </ul>
+    <div>
+</template>

@@ -9,4 +9,8 @@ export class HttpService {
     public getUser(username: string) {
         return this.http.get("https://api.github.com/users/" + username);
     }
+
+    public getFollowers(url: string) {
+        return this.http.get(url)
+    }
 }

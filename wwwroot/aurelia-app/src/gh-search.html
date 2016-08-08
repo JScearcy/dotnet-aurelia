@@ -1,9 +1,22 @@
 <template>
-    <form>
-        <input type="text" value.bind="username" />
-        <button click.delegate="ghSearch()">Search</button>
-    </form>
     <div>
-        <img src.bind="profileImg" />
+        <require from="./followers/gh-followers"></require>
+
+        <h1>Github Search</h1>
+        <form>
+            <input type="text" value.bind="username" />
+            <button click.delegate="ghSearch()">Search</button>
+        </form>
+        <div show.bind="displayUser">
+            <div class="gh-user">
+                <img src.bind="profileImg" />
+            </div>
+            <div class="gh-followers">
+                <gh-followers></gh-followers>
+            </div>
+        </div>
+        <div show.bind="!displayUser">
+            <h3>No User!</h3>
+        </div>
     </div>
 </template>
