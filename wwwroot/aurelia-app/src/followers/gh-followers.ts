@@ -10,7 +10,7 @@ export class GhFollowers {
     constructor(private httpService: HttpService, private ea: EventAggregator) {
         this.ea.subscribe("gh-search", user => {
             this.followers = [];
-            this.httpService.getFollowers(user.followers_url)
+            this.httpService.getFollowers(user.login)
                 .then(followers => this.followers = followers);
         });
     }

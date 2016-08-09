@@ -26,11 +26,13 @@ define('services/http-service',["require", "exports", 'aurelia-http-client'], fu
         HttpService.inject = function () { return [aurelia_http_client_1.HttpClient]; };
         ;
         HttpService.prototype.getUser = function (username) {
-            return this.http.get("/api/github/" + username)
+            console.log("getuser", username);
+            return this.http.get("/api/github/singleuser?username=" + username)
                 .then(function (res) { return JSON.parse(res.response); });
         };
-        HttpService.prototype.getFollowers = function (url) {
-            return this.http.get(url).then(function (res) { return JSON.parse(res.response); });
+        HttpService.prototype.getFollowers = function (username) {
+            console.log("getfollower", username);
+            return this.http.get("/api/github/followers?username=" + username).then(function (res) { return JSON.parse(res.response); });
         };
         return HttpService;
     }());
@@ -94,8 +96,9 @@ define('followers/gh-followers',["require", "exports", "../services/http-service
             this.httpService = httpService;
             this.ea = ea;
             this.ea.subscribe("gh-search", function (user) {
+                console.log(user.followers_url);
                 _this.followers = [];
-                _this.httpService.getFollowers(user.followers_url)
+                _this.httpService.getFollowers(user.login)
                     .then(function (followers) { return _this.followers = followers; });
             });
         }

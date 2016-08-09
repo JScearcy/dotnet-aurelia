@@ -5,7 +5,7 @@ using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class GithubController : Controller
     {
         private IApiService _githubService;
@@ -14,10 +14,16 @@ namespace WebApplication.Controllers
             _githubService = githubSvc;
         }
 
-        [HttpGet("{username}")]
-        public async Task<string> Get (string username)
+        public async Task<string> SingleUser (string username)
         {
             var content = await _githubService.GetUser(username);
+
+            return content;
+        }
+
+        public async Task<string> Followers (string username)
+        {
+            var content = await _githubService.GetFollowers(username);
 
             return content;
         }
