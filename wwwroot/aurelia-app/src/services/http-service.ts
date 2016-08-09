@@ -8,10 +8,11 @@ export class HttpService {
 
     public getUser(username: string) {
         return this.http.get("/api/github/singleuser?username=" + username)
-            .then(res => JSON.parse(res.response));
+            .then(res => JSON.parse(JSON.parse(res.response)));
     }
 
     public getFollowers(username: string) {
-        return this.http.get("/api/github/followers?username=" + username).then(res => JSON.parse(res.response));
+        return this.http.get("/api/github/followers?username=" + username)
+            .then(res => JSON.parse(JSON.parse(res.response)));
     }
 }

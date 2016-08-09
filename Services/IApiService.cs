@@ -1,11 +1,12 @@
 using System.Net.Http;
 using System.Threading.Tasks;
+using WebApplication.Models;
 
 namespace WebApplication.Services
 {
     public interface IApiService 
     {
-        Task<string> GetUser (string username);
-        Task<string> GetFollowers (string username);
+        Task<ApiResponseModel> GetUser (string username);
+        Task<ApiResponseModel> GetFollowers (string username);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using WebApplication.Services;
 
 namespace WebApplication.Controllers
@@ -14,18 +15,37 @@ namespace WebApplication.Controllers
             _githubService = githubSvc;
         }
 
-        public async Task<string> SingleUser (string username)
+        public async Task<JsonResult> SingleUser (string username)
         {
+            var result = new JsonResult("");
             var content = await _githubService.GetUser(username);
+            if (content.StatusCode == "OK") 
+            {
+                result.Value = content.Data;
+            } 
+            else 
+            {
+                result.Value = "Error";
+                result.StatusCode = 400;
+            }
+            return result;
 
-            return content;
         }
 
-        public async Task<string> Followers (string username)
+        public async Task<JsonResult> Followers (string username)
         {
+            var result = new JsonResult("");
             var content = await _githubService.GetFollowers(username);
-
-            return content;
+            if (content.StatusCode == "OK") 
+            {
+                result.Value = content.Data;
+            } 
+            else 
+            {
+                result.Value = "Error";
+                result.StatusCode = 400;
+            }
+            return result;
         }
     }
 }

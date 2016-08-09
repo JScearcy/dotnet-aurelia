@@ -9,14 +9,24 @@
         </form>
         <div show.bind="displayUser">
             <div class="gh-user">
-                <img src.bind="profileImg" />
-            </div>
-            <div class="gh-followers">
-                <gh-followers></gh-followers>
+                <a href.bind="user.html_url" target="_blank">
+                    <img src.bind="user.avatar_url" />
+                </a>
             </div>
         </div>
         <div show.bind="!displayUser">
             <h3>No User!</h3>
+        </div>
+        <div class="gh-stats">
+            <div class="gh-success">
+                <p>Success: ${successCount}</p>
+            </div>
+            <div class="gh-fail">
+                <p>Error: ${failCount}</p>
+            </div>
+        </div>
+        <div class="gh-followers" show.bind="displayUser">
+            <gh-followers></gh-followers>
         </div>
     </div>
 </template>
