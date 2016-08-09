@@ -2,7 +2,6 @@ define('app',["require", "exports"], function (require, exports) {
     "use strict";
     var App = (function () {
         function App() {
-            this.message = 'Github Search';
         }
         return App;
     }());
@@ -29,19 +28,23 @@ define('services/http-service',["require", "exports", 'aurelia-http-client'], fu
         HttpService.prototype.getUser = function (username) {
             return this.http.get("https://api.github.com/users/" + username);
         };
+        HttpService.prototype.getFollowers = function (url) {
+            return this.http.get(url);
+        };
         return HttpService;
     }());
     exports.HttpService = HttpService;
 });
 
-define('gh-search',["require", "exports", "./services/http-service"], function (require, exports, http_service_1) {
+define('gh-search',["require", "exports", "./services/http-service", "aurelia-event-aggregator"], function (require, exports, http_service_1, aurelia_event_aggregator_1) {
     "use strict";
     var GhSearch = (function () {
-        function GhSearch(httpService) {
+        function GhSearch(httpService, ea) {
             this.httpService = httpService;
+            this.ea = ea;
             this.displayUser = false;
         }
-        GhSearch.inject = function () { return [http_service_1.HttpService]; };
+        GhSearch.inject = function () { return [http_service_1.HttpService, aurelia_event_aggregator_1.EventAggregator]; };
         GhSearch.prototype.ghSearch = function () {
             var _this = this;
             this.httpService.getUser(this.username)
@@ -49,11 +52,11 @@ define('gh-search',["require", "exports", "./services/http-service"], function (
                 var userInfo = JSON.parse(res.response);
                 _this.profileImg = userInfo.avatar_url;
                 _this.displayUser = true;
+                _this.ea.publish("gh-search", userInfo);
             })
                 .catch(function (err) {
                 _this.displayUser = false;
                 console.error(err);
-                console.log(_this.displayUser);
             });
         };
         return GhSearch;
@@ -83,6 +86,28 @@ define('main',["require", "exports", './environment'], function (require, export
     exports.configure = configure;
 });
 
+define('followers/gh-followers',["require", "exports", "../services/http-service", "aurelia-event-aggregator"], function (require, exports, http_service_1, aurelia_event_aggregator_1) {
+    "use strict";
+    var GhFollowers = (function () {
+        function GhFollowers(httpService, ea) {
+            var _this = this;
+            this.httpService = httpService;
+            this.ea = ea;
+            this.ea.subscribe("gh-search", function (user) {
+                _this.followers = [];
+                _this.httpService.getFollowers(user.followers_url)
+                    .then(function (followers) {
+                    _this.followers = JSON.parse(followers.response);
+                    console.log(_this.followers);
+                });
+            });
+        }
+        GhFollowers.inject = function () { return [http_service_1.HttpService, aurelia_event_aggregator_1.EventAggregator]; };
+        return GhFollowers;
+    }());
+    exports.GhFollowers = GhFollowers;
+});
+
 define('resources/index',["require", "exports"], function (require, exports) {
     "use strict";
     function configure(config) {
@@ -90,6 +115,7 @@ define('resources/index',["require", "exports"], function (require, exports) {
     exports.configure = configure;
 });
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./gh-search\"></require>\n  <h1>${message}</h1>\n  <gh-search></gh-search>\n</template>\n"; });
-define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\n    <form>\n        <input type=\"text\" value.bind=\"username\" />\n        <button click.delegate=\"ghSearch()\">Search</button>\n    </form>\n    <div>\n        <img src.bind=\"profileImg\" />\n    </div>\n</template>"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <require from=\"./gh-search\"></require>\r\n  <gh-search class=\"gh-search-comp\"></gh-search>\r\n</template>\r\n"; });
+define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <require from=\"./followers/gh-followers\"></require>\r\n    \r\n    <h1>Github Search</h1>\r\n    <form>\r\n        <input type=\"text\" value.bind=\"username\" />\r\n        <button click.delegate=\"ghSearch()\">Search</button>\r\n    </form>\r\n    <div show.bind=\"displayUser\">\r\n        <div class=\"gh-user\">\r\n            <img src.bind=\"profileImg\" />\r\n        </div>\r\n        <div class=\"gh-followers\">\r\n            <gh-followers></gh-followers>\r\n        </div>\r\n    </div>\r\n    <div show.bind=\"!displayUser\">\r\n        <h3>No User!</h3>\r\n    </div>\r\n</template>"; });
+define('text!followers/gh-followers.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"followers-component\">\n        <p>Followers</p>\n        <ul class=\"followers-list\">\n            <template repeat.for=\"follower of followers\">\n                <li class=\"follower\">\n                    <a href=\"${follower.html_url}\" target=\"_blank\">\n                        <img src=\"${follower.avatar_url}\" />\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>"; });
 //# sourceMappingURL=app-bundle.js.map
