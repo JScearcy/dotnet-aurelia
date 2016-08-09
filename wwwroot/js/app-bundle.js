@@ -26,10 +26,11 @@ define('services/http-service',["require", "exports", 'aurelia-http-client'], fu
         HttpService.inject = function () { return [aurelia_http_client_1.HttpClient]; };
         ;
         HttpService.prototype.getUser = function (username) {
-            return this.http.get("https://api.github.com/users/" + username);
+            return this.http.get("/api/github/" + username)
+                .then(function (res) { return JSON.parse(res.response); });
         };
         HttpService.prototype.getFollowers = function (url) {
-            return this.http.get(url);
+            return this.http.get(url).then(function (res) { return JSON.parse(res.response); });
         };
         return HttpService;
     }());
@@ -48,8 +49,7 @@ define('gh-search',["require", "exports", "./services/http-service", "aurelia-ev
         GhSearch.prototype.ghSearch = function () {
             var _this = this;
             this.httpService.getUser(this.username)
-                .then(function (res) {
-                var userInfo = JSON.parse(res.response);
+                .then(function (userInfo) {
                 _this.profileImg = userInfo.avatar_url;
                 _this.displayUser = true;
                 _this.ea.publish("gh-search", userInfo);
@@ -96,10 +96,7 @@ define('followers/gh-followers',["require", "exports", "../services/http-service
             this.ea.subscribe("gh-search", function (user) {
                 _this.followers = [];
                 _this.httpService.getFollowers(user.followers_url)
-                    .then(function (followers) {
-                    _this.followers = JSON.parse(followers.response);
-                    console.log(_this.followers);
-                });
+                    .then(function (followers) { return _this.followers = followers; });
             });
         }
         GhFollowers.inject = function () { return [http_service_1.HttpService, aurelia_event_aggregator_1.EventAggregator]; };
@@ -116,6 +113,6 @@ define('resources/index',["require", "exports"], function (require, exports) {
 });
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <require from=\"./gh-search\"></require>\r\n  <gh-search class=\"gh-search-comp\"></gh-search>\r\n</template>\r\n"; });
-define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <require from=\"./followers/gh-followers\"></require>\r\n    \r\n    <h1>Github Search</h1>\r\n    <form>\r\n        <input type=\"text\" value.bind=\"username\" />\r\n        <button click.delegate=\"ghSearch()\">Search</button>\r\n    </form>\r\n    <div show.bind=\"displayUser\">\r\n        <div class=\"gh-user\">\r\n            <img src.bind=\"profileImg\" />\r\n        </div>\r\n        <div class=\"gh-followers\">\r\n            <gh-followers></gh-followers>\r\n        </div>\r\n    </div>\r\n    <div show.bind=\"!displayUser\">\r\n        <h3>No User!</h3>\r\n    </div>\r\n</template>"; });
-define('text!followers/gh-followers.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"followers-component\">\n        <p>Followers</p>\n        <ul class=\"followers-list\">\n            <template repeat.for=\"follower of followers\">\n                <li class=\"follower\">\n                    <a href=\"${follower.html_url}\" target=\"_blank\">\n                        <img src=\"${follower.avatar_url}\" />\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>"; });
+define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <div>\r\n        <require from=\"./followers/gh-followers\"></require>\r\n\r\n        <h1>Github Search</h1>\r\n        <form>\r\n            <input type=\"text\" value.bind=\"username\" />\r\n            <button click.delegate=\"ghSearch()\">Search</button>\r\n        </form>\r\n        <div show.bind=\"displayUser\">\r\n            <div class=\"gh-user\">\r\n                <img src.bind=\"profileImg\" />\r\n            </div>\r\n            <div class=\"gh-followers\">\r\n                <gh-followers></gh-followers>\r\n            </div>\r\n        </div>\r\n        <div show.bind=\"!displayUser\">\r\n            <h3>No User!</h3>\r\n        </div>\r\n    </div>\r\n</template>"; });
+define('text!followers/gh-followers.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"followers-component\">\n        <p>Followers</p>\n        <ul class=\"followers-list\">\n            <template repeat.for=\"follower of followers\">\n                <li class=\"follower\">\n                    <a href=\"${follower.html_url}\" target=\"_blank\">\n                        <img src=\"${follower.avatar_url}\" title=\"${follower.}\"/>\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

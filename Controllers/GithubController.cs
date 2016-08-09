@@ -15,14 +15,11 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet("{username}")]
-        public async Task<JsonResult> Get (string username)
+        public async Task<string> Get (string username)
         {
-            var serviceResults = await _githubService.GetUser(username);
-            var finalResults = new Dictionary<string, string>();
-            finalResults.Add("data", username);
-            finalResults.Add("results", serviceResults);
+            var content = await _githubService.GetUser(username);
 
-            return new JsonResult(finalResults);
+            return content;
         }
     }
 }

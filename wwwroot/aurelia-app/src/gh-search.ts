@@ -12,8 +12,7 @@ export class GhSearch {
 
     public ghSearch() {
         this.httpService.getUser(this.username)
-            .then(res => {
-                let userInfo = JSON.parse(res.response);
+            .then(userInfo => {
                 this.profileImg = userInfo.avatar_url;
                 this.displayUser = true;
                 this.ea.publish("gh-search", userInfo);

@@ -11,10 +11,7 @@ export class GhFollowers {
         this.ea.subscribe("gh-search", user => {
             this.followers = [];
             this.httpService.getFollowers(user.followers_url)
-                .then(followers => {
-                    this.followers = JSON.parse(followers.response);
-                    console.log(this.followers);
-                });
+                .then(followers => this.followers = followers);
         });
     }
 }

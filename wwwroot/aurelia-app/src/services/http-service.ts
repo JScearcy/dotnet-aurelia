@@ -7,10 +7,11 @@ export class HttpService {
     constructor(private http: HttpClient) {}
 
     public getUser(username: string) {
-        return this.http.get("https://api.github.com/users/" + username);
+        return this.http.get("/api/github/" + username)
+            .then(res => JSON.parse(res.response));
     }
 
     public getFollowers(url: string) {
-        return this.http.get(url)
+        return this.http.get(url).then(res => JSON.parse(res.response));
     }
 }
