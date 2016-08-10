@@ -1,6 +1,7 @@
 <template>
     <div>
         <require from="./followers/gh-followers"></require>
+        <require from="./following/gh-following"></require>
 
         <h1>Github Search</h1>
         <form>
@@ -25,8 +26,13 @@
                 <p>Error: ${failCount}</p>
             </div>
         </div>
-        <div class="gh-followers" show.bind="displayUser">
-            <gh-followers></gh-followers>
-        </div>
+        <div class="gh-components" show.bind="displayUser">
+            <div class="gh-followers">
+                <gh-followers></gh-followers>
+            </div>
+            <div class="gh-following">
+                <gh-following></gh-following>
+            </div>
+        <div>
     </div>
 </template>

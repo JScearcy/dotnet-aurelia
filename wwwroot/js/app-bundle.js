@@ -27,11 +27,15 @@ define('services/http-service',["require", "exports", 'aurelia-http-client'], fu
         ;
         HttpService.prototype.getUser = function (username) {
             return this.http.get("/api/github/singleuser?username=" + username)
-                .then(function (res) { return JSON.parse(JSON.parse(res.response)); });
+                .then(function (res) { return JSON.parse(res.response); });
         };
         HttpService.prototype.getFollowers = function (username) {
             return this.http.get("/api/github/followers?username=" + username)
-                .then(function (res) { return JSON.parse(JSON.parse(res.response)); });
+                .then(function (res) { return JSON.parse(res.response); });
+        };
+        HttpService.prototype.getFollowing = function (username) {
+            return this.http.get("/api/github/following?username=" + username)
+                .then(function (res) { return JSON.parse(res.response); });
         };
         return HttpService;
     }());
@@ -110,6 +114,25 @@ define('followers/gh-followers',["require", "exports", "../services/http-service
     exports.GhFollowers = GhFollowers;
 });
 
+define('following/gh-following',["require", "exports", "../services/http-service", "aurelia-event-aggregator"], function (require, exports, http_service_1, aurelia_event_aggregator_1) {
+    "use strict";
+    var GhFollowing = (function () {
+        function GhFollowing(httpService, ea) {
+            var _this = this;
+            this.httpService = httpService;
+            this.ea = ea;
+            this.ea.subscribe("gh-search", function (user) {
+                _this.followings = [];
+                _this.httpService.getFollowing(user.login)
+                    .then(function (followers) { return _this.followings = followers; });
+            });
+        }
+        GhFollowing.inject = function () { return [http_service_1.HttpService, aurelia_event_aggregator_1.EventAggregator]; };
+        return GhFollowing;
+    }());
+    exports.GhFollowing = GhFollowing;
+});
+
 define('resources/index',["require", "exports"], function (require, exports) {
     "use strict";
     function configure(config) {
@@ -118,6 +141,7 @@ define('resources/index',["require", "exports"], function (require, exports) {
 });
 
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <require from=\"./gh-search\"></require>\r\n  <gh-search class=\"gh-search-comp\"></gh-search>\r\n</template>\r\n"; });
-define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <div>\r\n        <require from=\"./followers/gh-followers\"></require>\r\n\r\n        <h1>Github Search</h1>\r\n        <form>\r\n            <input type=\"text\" value.bind=\"username\" />\r\n            <button click.delegate=\"ghSearch()\">Search</button>\r\n        </form>\r\n        <div show.bind=\"displayUser\">\r\n            <div class=\"gh-user\">\r\n                <a href.bind=\"user.html_url\" target=\"_blank\">\r\n                    <img src.bind=\"user.avatar_url\" />\r\n                </a>\r\n            </div>\r\n        </div>\r\n        <div show.bind=\"!displayUser\">\r\n            <h3>No User!</h3>\r\n        </div>\r\n        <div class=\"gh-stats\">\r\n            <div class=\"gh-success\">\r\n                <p>Success: ${successCount}</p>\r\n            </div>\r\n            <div class=\"gh-fail\">\r\n                <p>Error: ${failCount}</p>\r\n            </div>\r\n        </div>\r\n        <div class=\"gh-followers\" show.bind=\"displayUser\">\r\n            <gh-followers></gh-followers>\r\n        </div>\r\n    </div>\r\n</template>"; });
+define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <div>\r\n        <require from=\"./followers/gh-followers\"></require>\r\n        <require from=\"./following/gh-following\"></require>\r\n\r\n        <h1>Github Search</h1>\r\n        <form>\r\n            <input type=\"text\" value.bind=\"username\" />\r\n            <button click.delegate=\"ghSearch()\">Search</button>\r\n        </form>\r\n        <div show.bind=\"displayUser\">\r\n            <div class=\"gh-user\">\r\n                <a href.bind=\"user.html_url\" target=\"_blank\">\r\n                    <img src.bind=\"user.avatar_url\" />\r\n                </a>\r\n            </div>\r\n        </div>\r\n        <div show.bind=\"!displayUser\">\r\n            <h3>No User!</h3>\r\n        </div>\r\n        <div class=\"gh-stats\">\r\n            <div class=\"gh-success\">\r\n                <p>Success: ${successCount}</p>\r\n            </div>\r\n            <div class=\"gh-fail\">\r\n                <p>Error: ${failCount}</p>\r\n            </div>\r\n        </div>\r\n        <div class=\"gh-components\" show.bind=\"displayUser\">\r\n            <div class=\"gh-followers\">\r\n                <gh-followers></gh-followers>\r\n            </div>\r\n            <div class=\"gh-following\">\r\n                <gh-following></gh-following>\r\n            </div>\r\n        <div>\r\n    </div>\r\n</template>"; });
 define('text!followers/gh-followers.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"followers-component\">\n        <p>Followers</p>\n        <ul class=\"followers-list\">\n            <template repeat.for=\"follower of followers\">\n                <li class=\"follower\">\n                    <a href=\"${follower.html_url}\" target=\"_blank\">\n                        <img src=\"${follower.avatar_url}\" title=\"${follower.login}\"/>\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>\n"; });
+define('text!following/gh-following.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"following-component\">\n        <p>Following</p>\n        <ul class=\"following-list\">\n            <template repeat.for=\"following of followings\">\n                <li class=\"following\">\n                    <a href=\"${following.html_url}\" target=\"_blank\">\n                        <img src=\"${following.avatar_url}\" title=\"${following.login}\"/>\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>"; });
 //# sourceMappingURL=app-bundle.js.map

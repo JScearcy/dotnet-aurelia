@@ -1,0 +1,14 @@
+<template>
+    <div class="following-component">
+        <p>Following</p>
+        <ul class="following-list">
+            <template repeat.for="following of followings">
+                <li class="following">
+                    <a href="${following.html_url}" target="_blank">
+                        <img src="${following.avatar_url}" title="${following.login}"/>
+                    </a>
+                </li>
+            </template>
+        </ul>
+    <div>
+</template>

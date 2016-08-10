@@ -8,5 +8,6 @@ namespace WebApplication.Services
     {
         Task<ApiResponseModel> GetUser (string username);
         Task<ApiResponseModel> GetFollowers (string username);
+        Task<ApiResponseModel> GetFollowing (string username);
     }
 }

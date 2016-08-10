@@ -1,0 +1,20 @@
+.following-component {
+    border: 1px solid #000;
+    border-radius: 5px;
+    margin: 10px;
+    width: 30vw;
+}
+
+.following-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.following img {
+    width: 30px;
+    border-radius: 50%;
+}
+
+.following {
+    display: inline;
+}

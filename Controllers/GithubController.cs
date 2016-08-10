@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using WebApplication.Models;
 using WebApplication.Services;
 
 namespace WebApplication.Controllers
@@ -17,28 +16,33 @@ namespace WebApplication.Controllers
 
         public async Task<JsonResult> SingleUser (string username)
         {
-            var result = new JsonResult("");
             var content = await _githubService.GetUser(username);
-            if (content.StatusCode == "OK") 
-            {
-                result.Value = content.Data;
-            } 
-            else 
-            {
-                result.Value = "Error";
-                result.StatusCode = 400;
-            }
-            return result;
+
+            return GetJsonResult(content);
 
         }
 
         public async Task<JsonResult> Followers (string username)
         {
-            var result = new JsonResult("");
             var content = await _githubService.GetFollowers(username);
-            if (content.StatusCode == "OK") 
+
+            return GetJsonResult(content);
+        }
+
+        public async Task<JsonResult> Following (string username) 
+        {
+            var content = await _githubService.GetFollowing(username);
+
+            return GetJsonResult(content);
+        }
+
+        private JsonResult GetJsonResult(ApiResponseModel response)
+        {
+            var result = new JsonResult("");
+
+            if (response.StatusCode == "OK") 
             {
-                result.Value = content.Data;
+                result.Value = response.Data;
             } 
             else 
             {
