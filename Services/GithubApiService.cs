@@ -50,6 +50,20 @@ namespace WebApplication.Services
             return responseModel;
         }
 
+        public async Task<ApiResponseModel> GetGists (string username)
+        {
+            ApiResponseModel responseModel;
+            using (var client = CreateClientObject())
+            {
+                var queryString = $"users/{username}/gists";
+
+                HttpResponseMessage response = await client.GetAsync(queryString);
+                responseModel = await TransformResponse(response);
+            }
+            return responseModel;
+        }
+
+
         private HttpClient CreateClientObject()
         {
             var client = new HttpClient();

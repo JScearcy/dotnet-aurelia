@@ -36,13 +36,21 @@ namespace WebApplication.Controllers
             return GetJsonResult(content);
         }
 
+        public async Task<JsonResult> Gists (string username)
+        {
+            var content = await _githubService.GetGists(username);
+
+            return GetJsonResult(content);
+        }
+
         private JsonResult GetJsonResult(ApiResponseModel response)
         {
             var result = new JsonResult("");
 
-            if (response.StatusCode == "OK") 
+            if (response.Success) 
             {
                 result.Value = response.Data;
+                result.StatusCode = 200;
             } 
             else 
             {

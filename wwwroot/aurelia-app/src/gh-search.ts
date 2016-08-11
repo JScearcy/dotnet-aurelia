@@ -14,15 +14,15 @@ export class GhSearch {
     constructor(private httpService: HttpService, private ea: EventAggregator) {}
 
     public ghSearch() {
+        this.ea.publish("gh-search", this.username);
+        this.displayUser = false;
         this.httpService.getUser(this.username)
             .then(userInfo => {
                 this.user = userInfo;
                 this.displayUser = true;
-                this.ea.publish("gh-search", userInfo);
                 this.successCount++;
             })
             .catch(err => {
-                this.displayUser = false;
                 this.failCount++;
                 console.error(err);
             });

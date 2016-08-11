@@ -18,3 +18,7 @@
 .following {
     display: inline;
 }
+
+.following a {
+    text-decoration: none;
+}

@@ -1,0 +1,14 @@
+<template>
+    <div class="gists-component">
+        <p>Gists</p>
+        <ul class="gists-list">
+            <template repeat.for="gist of gists">
+                <li class="gist">
+                    <a href="${gist.html_url}" target="_blank">
+                        ${gist.fileString}
+                    </a>
+                </li>
+            </template>
+        </ul>
+    <div>
+</template>
