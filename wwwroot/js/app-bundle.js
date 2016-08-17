@@ -17,25 +17,40 @@ define('environment',["require", "exports"], function (require, exports) {
     };
 });
 
-define('services/http-service',["require", "exports", 'aurelia-http-client'], function (require, exports, aurelia_http_client_1) {
+define('const/gh-urls',["require", "exports"], function (require, exports) {
+    "use strict";
+    var GhUrls = (function () {
+        function GhUrls() {
+            this.SingleUser = "/api/github/singleuser?username=";
+            this.Followers = "/api/github/followers?username=";
+            this.Following = "/api/github/following?username=";
+            this.Gists = "/api/github/gists?username=";
+        }
+        return GhUrls;
+    }());
+    exports.GhUrls = GhUrls;
+});
+
+define('services/http-service',["require", "exports", 'aurelia-http-client', '../const/gh-urls'], function (require, exports, aurelia_http_client_1, gh_urls_1) {
     "use strict";
     var HttpService = (function () {
-        function HttpService(http) {
+        function HttpService(http, urls) {
             this.http = http;
+            this.urls = urls;
         }
-        HttpService.inject = function () { return [aurelia_http_client_1.HttpClient]; };
+        HttpService.inject = function () { return [aurelia_http_client_1.HttpClient, gh_urls_1.GhUrls]; };
         ;
         HttpService.prototype.getUser = function (username) {
-            return this.fetchApiItem("/api/github/singleuser?username=", username);
+            return this.fetchApiItem(this.urls.SingleUser, username);
         };
         HttpService.prototype.getFollowers = function (username) {
-            return this.fetchApiItem("/api/github/followers?username=", username);
+            return this.fetchApiItem(this.urls.Followers, username);
         };
         HttpService.prototype.getFollowing = function (username) {
-            return this.fetchApiItem("/api/github/following?username=", username);
+            return this.fetchApiItem(this.urls.Following, username);
         };
         HttpService.prototype.getGists = function (username) {
-            return this.fetchApiItem("/api/github/gists?username=", username);
+            return this.fetchApiItem(this.urls.Gists, username);
         };
         HttpService.prototype.fetchApiItem = function (url, username) {
             return this.http.get(url + username)
@@ -137,13 +152,6 @@ define('following/gh-following',["require", "exports", "../services/http-service
     exports.GhFollowing = GhFollowing;
 });
 
-define('resources/index',["require", "exports"], function (require, exports) {
-    "use strict";
-    function configure(config) {
-    }
-    exports.configure = configure;
-});
-
 define('gists/gh-gists',["require", "exports", "../services/http-service", "aurelia-event-aggregator"], function (require, exports, http_service_1, aurelia_event_aggregator_1) {
     "use strict";
     var GhGists = (function () {
@@ -172,8 +180,15 @@ define('gists/gh-gists',["require", "exports", "../services/http-service", "aure
     exports.GhGists = GhGists;
 });
 
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\r\n  <require from=\"./gh-search\"></require>\r\n  <gh-search class=\"gh-search-comp\"></gh-search>\r\n</template>\r\n"; });
-define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\r\n    <div>\r\n        <require from=\"./followers/gh-followers\"></require>\r\n        <require from=\"./following/gh-following\"></require>\r\n        <require from=\"./gists/gh-gists\"></require>\r\n\r\n        <h1>Github Search</h1>\r\n        <form>\r\n            <input type=\"text\" value.bind=\"username\" />\r\n            <button click.delegate=\"ghSearch()\">Search</button>\r\n        </form>\r\n        <div if.bind=\"displayUser\">\r\n            <div class=\"gh-user\">\r\n                <a href.bind=\"user.html_url\" target=\"_blank\">\r\n                    <img src.bind=\"user.avatar_url\" />\r\n                </a>\r\n            </div>\r\n        </div>\r\n        <div if.bind=\"!displayUser\">\r\n            <h3>No User!</h3>\r\n        </div>\r\n        <div class=\"gh-stats\">\r\n            <div class=\"gh-success\">\r\n                <p>Success: ${successCount}</p>\r\n            </div>\r\n            <div class=\"gh-fail\">\r\n                <p>Error: ${failCount}</p>\r\n            </div>\r\n        </div>\r\n        <div class=\"gh-components\" show.bind=\"displayUser\">\r\n            <div class=\"gh-followers\">\r\n                <gh-followers></gh-followers>\r\n            </div>\r\n            <div class=\"gh-following\">\r\n                <gh-following></gh-following>\r\n            </div>\r\n            <div class=\"gh-gists\">\r\n                <gh-gists></gh-gists>\r\n            </div>\r\n        <div>\r\n    </div>\r\n</template>"; });
+define('resources/index',["require", "exports"], function (require, exports) {
+    "use strict";
+    function configure(config) {
+    }
+    exports.configure = configure;
+});
+
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./gh-search\"></require>\n  <gh-search class=\"gh-search-comp\"></gh-search>\n</template>\n"; });
+define('text!gh-search.html', ['module'], function(module) { module.exports = "<template>\n    <div>\n        <require from=\"./followers/gh-followers\"></require>\n        <require from=\"./following/gh-following\"></require>\n        <require from=\"./gists/gh-gists\"></require>\n\n        <h1>Github Search</h1>\n        <form>\n            <input type=\"text\" value.bind=\"username\" />\n            <button click.delegate=\"ghSearch()\">Search</button>\n        </form>\n        <div if.bind=\"displayUser\">\n            <div class=\"gh-user\">\n                <a href.bind=\"user.html_url\" target=\"_blank\">\n                    <img src.bind=\"user.avatar_url\" />\n                </a>\n            </div>\n        </div>\n        <div if.bind=\"!displayUser\">\n            <h3>No User!</h3>\n        </div>\n        <div class=\"gh-stats\">\n            <div class=\"gh-success\">\n                <p>Success: ${successCount}</p>\n            </div>\n            <div class=\"gh-fail\">\n                <p>Error: ${failCount}</p>\n            </div>\n        </div>\n        <div class=\"gh-components\" show.bind=\"displayUser\">\n            <div class=\"gh-followers\">\n                <gh-followers></gh-followers>\n            </div>\n            <div class=\"gh-following\">\n                <gh-following></gh-following>\n            </div>\n            <div class=\"gh-gists\">\n                <gh-gists></gh-gists>\n            </div>\n        <div>\n    </div>\n</template>"; });
 define('text!followers/gh-followers.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"followers-component\">\n        <p>Followers</p>\n        <ul class=\"followers-list\">\n            <template repeat.for=\"follower of followers\">\n                <li class=\"follower\">\n                    <a href=\"${follower.html_url}\" target=\"_blank\">\n                        <img src=\"${follower.avatar_url}\" title=\"${follower.login}\"/>\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>\n"; });
 define('text!following/gh-following.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"following-component\">\n        <p>Following</p>\n        <ul class=\"following-list\">\n            <template repeat.for=\"following of followings\">\n                <li class=\"following\">\n                    <a href=\"${following.html_url}\" target=\"_blank\">\n                        <img src=\"${following.avatar_url}\" title=\"${following.login}\"/>\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>"; });
 define('text!gists/gh-gists.html', ['module'], function(module) { module.exports = "<template>\n    <div class=\"gists-component\">\n        <p>Gists</p>\n        <ul class=\"gists-list\">\n            <template repeat.for=\"gist of gists\">\n                <li class=\"gist\">\n                    <a href=\"${gist.html_url}\" target=\"_blank\">\n                        ${gist.fileString}\n                    </a>\n                </li>\n            </template>\n        </ul>\n    <div>\n</template>"; });
