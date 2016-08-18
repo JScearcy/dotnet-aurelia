@@ -11,58 +11,45 @@ namespace WebApplication.Services
     public class GithubApiService : IApiService
     {
         private const string baseAddress = "https://api.github.com/";
-        public async Task<ApiResponseModel> GetUser (string username)
+
+        public Task<ApiResponseModel> GetUser (string username)
+        {
+            var queryString = $"users/{username}";
+
+            return GithubGet(queryString);
+        }
+
+        public Task<ApiResponseModel> GetFollowers (string username)
+        {
+            var queryString = $"users/{username}/followers";
+
+            return GithubGet(queryString);
+        }
+
+        public Task<ApiResponseModel> GetFollowing (string username)
+        {
+            var queryString = $"users/{username}/following";
+            
+            return GithubGet(queryString);
+        }
+
+        public Task<ApiResponseModel> GetGists (string username)
+        {
+            var queryString = $"users/{username}/gists";
+
+            return GithubGet(queryString);
+        }
+
+        public async Task<ApiResponseModel> GithubGet(string queryString)
         {
             ApiResponseModel responseModel;
             using (var client = CreateClientObject())
             {
-                var queryString = $"users/{username}";
-
                 HttpResponseMessage response = await client.GetAsync(queryString);
                 responseModel = await TransformResponse(response);
             }
             return responseModel;
         }
-
-        public async Task<ApiResponseModel> GetFollowers (string username)
-        {
-            ApiResponseModel responseModel;
-            using (var client = CreateClientObject())
-            {
-                var queryString = $"users/{username}/followers";
-
-                HttpResponseMessage response = await client.GetAsync(queryString);
-                responseModel = await TransformResponse(response);
-            }
-            return responseModel;
-        }
-
-        public async Task<ApiResponseModel> GetFollowing (string username)
-        {
-            ApiResponseModel responseModel;
-            using (var client = CreateClientObject())
-            {
-                var queryString = $"users/{username}/following";
-
-                HttpResponseMessage response = await client.GetAsync(queryString);
-                responseModel = await TransformResponse(response);
-            }
-            return responseModel;
-        }
-
-        public async Task<ApiResponseModel> GetGists (string username)
-        {
-            ApiResponseModel responseModel;
-            using (var client = CreateClientObject())
-            {
-                var queryString = $"users/{username}/gists";
-
-                HttpResponseMessage response = await client.GetAsync(queryString);
-                responseModel = await TransformResponse(response);
-            }
-            return responseModel;
-        }
-
 
         private HttpClient CreateClientObject()
         {
